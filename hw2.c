@@ -73,7 +73,8 @@ void Print(const char* format , ...)
 void calc_lorenz(double sigma, double beta, double rho)
 {
    int i;
-   tpp p;
+   tpp p;      // Pointer to a tripoint struct - will be used to access the array of lorenz data.
+
    /*  Coordinates  */
    double x = 1;
    double y = 1;
