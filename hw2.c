@@ -157,10 +157,10 @@ void display()
    glRasterPos3d(0.0, 0.0, dim*0.8);   Print("Z");
 
    //  Display parameters
-   glWindowPos2i(5,65);    Print("     Sigma:  %g", sigma);
-   glWindowPos2i(5,45);    Print("      Beta:  %g", beta);
-   glWindowPos2i(5,25);    Print("       Rho:  %g", rho);
-   glWindowPos2i(5,5);     Print("View Angle:  (%0.1f,%0.1f)",th,ph);
+   glWindowPos2i(5,65);    Print("     Sigma:  %0.4f %c %0.4f per sec", sigma, SIGN_CHAR(sigma_dt), fabs(sigma_dt*30.0));
+   glWindowPos2i(5,45);    Print("      Beta:  %0.4f %c %0.4f per sec", beta, SIGN_CHAR(beta_dt), fabs(beta_dt*30.0));
+   glWindowPos2i(5,25);    Print("       Rho:  %0.4f %c %0.4f per sec", rho, SIGN_CHAR(rho_dt), fabs(rho_dt*30.0));
+   glWindowPos2i(5,5);     Print("View Angle:  (%0.1f,%0.1f) + (%g,%g) per sec", th, ph, th_dt*30.0, ph_dt*30.0);
 
    //  Flush and swap
    glFlush();

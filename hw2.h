@@ -4,8 +4,9 @@
  * Timothy Mason, CSCI 5229 Computer Graphics
  */
 
-// Handy precompiler macrod to save some typing
+// Handy precompiler macros to save some typing
 #define MAX(x,y) ((x) > (y) ? (x) : (y))
+#define SIGN_CHAR(x) ((x)>=0.0 ? '+' : '-')
 
 #define LEN 256  // Maximum length of text string
 void Print(const char* format , ...);
