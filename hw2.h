@@ -13,6 +13,16 @@ void Print(const char* format , ...);
 
 #define LORENZ_SIZE 50000	// Number of points in the Lorenz Attractor
 
+// Default parameter values for the attractor.  These are the values studied by
+// Edward Lorenz (source: https://en.wikipedia.org/wiki/Lorenz_system )
+#define SIGMA_DEFAULT 10.0
+#define BETA_DEFAULT (8.0 / 3.0)
+#define RHO_DEFAULT 28.0
+
+#define SIGMA_INCR 0.01		// Amount to change sigma on a single step
+#define BETA_INCR 0.0033333	// Amount to change beta on a single step
+#define RHO_INCR 0.05		// Amount to change rho on a single step
+
 typedef struct tripoint *tpp;
 typedef struct tripoint {
 	double x;
