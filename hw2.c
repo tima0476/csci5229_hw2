@@ -1,11 +1,7 @@
 /*
  *  Timothy Mason, homework 2, 3d Lorenz Attractor
- *
- *  NOTE:  I use explicit floating point contants throughout this code.  Perhaps I am showing my age, but 
- * I learned C programming in the 1980's and at that time compilers couldn't be trusted to "get it right".  
- * Some of the most difficult code bugs used to come from making assumptions about how the compiler would
- * handle ambiguous source code.
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -178,96 +174,122 @@ void key(unsigned char ch,int x,int y)
 {
    switch (ch) {
 // Housekeeping
-      case 27:    
-         //  Exit on ESC
+      case 27:    // Exit on ESC
          exit(0);
 
-      case 12:     
-         //  Reset view angle on Ctrl-L
+// Axes Manipulations
+      case '0':   // Reset view angle and halt axes animations on 0
          th = ph = 0.0;
+         th_dt = ph_dt = 0.0;
+
+      case 'd':   // increase azimuth by 5 degrees
+         th += 5.0;
          break;
 
+      case 'a':   // decrease azimuth by 5 degrees   
+         th -= 5.0;
+         break;
+
+      case 'w':   // increase elevation by 5 degrees
+         ph += 5.0;
+         break;
+
+      case 's':   // decrease elevation by 5 degrees
+         ph -= 5.0;
+         break;
+
+      case 'D':   // Increase azimuth velocity
+         th_dt += AXIS_ANIM_STEP;
+         break;
+
+      case 'A':   // Decrease azimuth velocity
+         th_dt -= AXIS_ANIM_STEP;
+         break;
+
+      case 'W':   // Increase elevation velocity
+         ph_dt += AXIS_ANIM_STEP;
+         break;
+
+      case 'S':   // Decrease elevation velocity
+         ph_dt -= AXIS_ANIM_STEP;
+         break;
+
+
 // Manipulation of attractor parameters
-      case 'u':
-         // sigma++ single step
+      case 'u':   // sigma++ single step
          sigma += SIGMA_INCR;
          calc_lorenz(sigma, beta, rho);
 
          break;
 
-      case 'j':
-         // sigma-- single step
+      case 'j':   // sigma-- single step
          sigma -= SIGMA_INCR;
          calc_lorenz(sigma, beta, rho);
          break;
 
-      case 'i':
-         // beta++ single step
+      case 'i':   // beta++ single step
          beta += BETA_INCR;
          calc_lorenz(sigma, beta, rho);
          break;
 
-      case 'k':
-         // beta-- single step
+      case 'k':   // beta-- single step
          beta -= BETA_INCR;
          calc_lorenz(sigma, beta, rho);
          break;
 
-      case 'o':
-         // rho++ single step
+      case 'o':   // rho++ single step
          rho += RHO_INCR;
          calc_lorenz(sigma, beta, rho);
          break;
 
-      case 'l':
-         // beta-- single step
+      case 'l':   // beta-- single step
          rho -= RHO_INCR;
          calc_lorenz(sigma, beta, rho);
          break;
 
-      case 'r':
-         // Reset the attractor parameters to Lorenz's defaults
+      case 'U':   // sigma increase velocity
+         sigma_dt += SIGMA_ANIM_STEP;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'J':   // sigma decrease velocity
+         sigma_dt -= SIGMA_ANIM_STEP;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'I':   // beta increase velocity
+         beta_dt += BETA_ANIM_STEP;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'K':   // beta decrease velocity
+         beta_dt -= BETA_ANIM_STEP;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'O':   // rho increase velocity
+         rho_dt += RHO_ANIM_STEP;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'L':   // beta decrease velocity
+         rho_dt -= RHO_ANIM_STEP;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case '-':   // Reset attractor parameters to defaults and halt parameter animations on -
          sigma = SIGMA_DEFAULT;
          beta = BETA_DEFAULT;
          rho = RHO_DEFAULT;
-         calc_lorenz(sigma, beta, rho);
-   }
-
-   //  Tell GLUT it is necessary to redisplay the scene
-   glutPostRedisplay();
-}
-
-/*
- *  GLUT calls this routine when a special key such as an arrow is pressed
- */
-void special(int key,int x,int y)
-{
-   switch (key) {
-      case GLUT_KEY_RIGHT:    
-         //  Right arrow key - increase azimuth by 5 degrees
-         th += 5.0;
-         break;
-
-      case GLUT_KEY_LEFT:  
-         //  Left arrow key - decrease azimuth by 5 degrees   
-         th -= 5.0;
-         break;
-
-      case GLUT_KEY_UP:       
-         //  Up arrow key - increase elevation by 5 degrees
-         ph += 5.0;
-         break;
-
-      case GLUT_KEY_DOWN:     
-         //  Down arrow key - decrease elevation by 5 degrees
-         ph -= 5.0;
-         break;
-   }
-
-   //  Keep angles to +/-360 degrees
-   th = fmod(th, 360.0);
-   ph = fmod(ph, 360.0);
    
+         sigma_dt = 0.0;
+         beta_dt = 0.0;
+         rho_dt = 0.0;
+
+         calc_lorenz(sigma, beta, rho);
+         break;
+   }
+
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
 }
@@ -350,9 +372,6 @@ int main(int argc,char* argv[])
    
    //  Tell GLUT to call "reshape" when the window is resized
    glutReshapeFunc(reshape);
-   
-   //  Tell GLUT to call "special" when an arrow key is pressed
-   glutSpecialFunc(special);
    
    //  Tell GLUT to call "key" when a key is pressed
    glutKeyboardFunc(key);
