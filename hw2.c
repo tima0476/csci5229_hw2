@@ -1,10 +1,10 @@
 /*
  *  Timothy Mason, homework 2, 3d Lorenz Attractor
  *
- *  Key bindings:
- *  arrows Change view angle
- *  Ctrl-L Reset view angle
- *  ESC    Exit
+ *  NOTE:  I use explicit floating point contants throughout this code.  Perhaps I am showing my age, but 
+ * I learned C programming in the 1980's and at that time compilers couldn't be trusted to "get it right".  
+ * Some of the most difficult code bugs used to come from making assumptions about how the compiler would
+ * handle ambiguous source code.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,20 +24,27 @@
 #include "hsv2rgb.h"
 
 //  Globals
-int th=0;                     // Azimuth of view angle
-int ph=0;                     // Elevation of view angle
+double th=0.0;                     // Azimuth of view angle (floating point for smoother animation)
+double ph=0.0;                     // Elevation of view angle (floating point for smoother animation)
 
 double sigma = SIGMA_DEFAULT;
 double beta = BETA_DEFAULT;
 double rho = RHO_DEFAULT;
 //
-// This value for dim was determined by programmatically checking the ranges of x, y, and z.  The maximum magnitude
-// (26.0004 on the y axis) was then rounded to 30 then doubled to get some aesthetically pleasing "breathing room"
-// and avoid clipping to the ortho projection.
+// This value for dim was determined by programmatically checking the ranges of x, y, and z for the default 
+// attractor parameters.  The maximum magnitude (26.0004 on the y axis) was  rounded to 30 then doubled to 
+// get some aesthetically pleasing "breathing room" and avoid clipping to the ortho projection.
 //
-double dim=60;                // Dimension of orthogonal box
+double dim=60.0;                // Dimension of orthogonal box
 tripoint * arry = NULL;
-double max_dist = 0;          // Track the magnitude of the largest vector for use in heatmap coloring
+double max_dist = 0.0;          // Track the magnitude of the largest vector for use in heatmap coloring
+
+double th_dt = AXIS_ANIM_STEP * 2.0; // Default for the axis to be in motion
+double ph_dt = AXIS_ANIM_STEP;
+
+double sigma_dt = 0.0;
+double beta_dt = 0.0;
+double rho_dt = 0.0;
 
 /*
  *  Convenience routine to output raster text
@@ -63,20 +70,20 @@ void Print(const char* format , ...)
  *  Calculate an array of points for a lorenz attractor.  Code modified from
  *  provided example code lorenz.c
  *
- * * "The Lorenz attractor is an attractor that arises in a simplified system of // equations describing the 
+ * * "The Lorenz attractor is an attractor that arises in a simplified system of equations describing the 
  * two-dimensional flow of fluid of uniform depth..." - http://mathworld.wolfram.com/LorenzAttractor.html
  */
-void calc_lorenz(double sigma, double beta, double rho)
+void calc_lorenz(double s, double b, double r)
 {
    int i;
-   tpp p;      // Pointer to a tripoint struct - will be used to access the array of lorenz data.
+   tpp p;      // Pointer to a tripoint struct - will be used to access the array of attractor data.
 
    /*  Coordinates  */
-   double x = 1;
-   double y = 1;
-   double z = 1;
+   double x = 1.0;
+   double y = 1.0;
+   double z = 1.0;
 
-   /*  Time step  */
+   /*  Attractor time step  */
    double dt = 0.001;
    /*
     *  Integrate 50,000 steps (50 time units with dt = 0.001)
@@ -96,14 +103,15 @@ void calc_lorenz(double sigma, double beta, double rho)
    
          max_dist = MAX(max_dist, p->dist);
       } else {
-         p->dist = 0;
-         max_dist = 0;
+         // Initialize with the first point being zero distance
+         p->dist = 0.0;
+         max_dist = 0.0;
       }
 
+      // Save the coordinates of the calculated point in the array
       p->x = x;
       p->y = y;
       p->z = z;
-      
    }
    return;
 }
@@ -120,10 +128,10 @@ void display()
    glLoadIdentity();
 
    //  Set view angle
-   glRotated(ph,1,0,0);
-   glRotated(th,0,1,0);
+   glRotated(ph, 1.0, 0.0, 0.0);
+   glRotated(th, 0.0, 1.0, 0.0);
 
-   // Draw the Lorenz attractor
+   // Draw the Lorenz attractor as an OpenGL line strip
    glBegin(GL_LINE_STRIP);
    tpp p = arry;
    for (int i=0; i<LORENZ_SIZE; i++, p++) {
@@ -137,25 +145,26 @@ void display()
       glColor3f(rgb.R, rgb.G, rgb.B);
       glVertex3d(p->x, p->y, p->z);
    }
+   glEnd();
 
    //  Draw axes in light grey
    glColor3f(0.8,0.8,0.8);
    glBegin(GL_LINES);
-   glVertex3d(0,0,0);   glVertex3d(dim*0.8, 0, 0);    // X axis
-   glVertex3d(0,0,0);   glVertex3d(0, dim*0.8, 0);    // Y axis
-   glVertex3d(0,0,0);   glVertex3d(0, 0, dim*0.8);    // Z axis
+   glVertex3d(0.0, 0.0, 0.0);   glVertex3d(dim*0.8, 0.0, 0.0);    // X axis
+   glVertex3d(0.0, 0.0, 0.0);   glVertex3d(0.0, dim*0.8, 0.0);    // Y axis
+   glVertex3d(0.0, 0.0, 0.0);   glVertex3d(0.0, 0.0, dim*0.8);    // Z axis
    glEnd();
 
    //  Label axes
-   glRasterPos3d(dim*0.8,0,0);   Print("X");
-   glRasterPos3d(0,dim*0.8,0);   Print("Y");
-   glRasterPos3d(0,0,dim*0.8);   Print("Z");
+   glRasterPos3d(dim*0.8, 0.0, 0.0);   Print("X");
+   glRasterPos3d(0.0, dim*0.8, 0.0);   Print("Y");
+   glRasterPos3d(0.0, 0.0, dim*0.8);   Print("Z");
 
    //  Display parameters
    glWindowPos2i(5,65);    Print("     Sigma:  %g", sigma);
    glWindowPos2i(5,45);    Print("      Beta:  %g", beta);
    glWindowPos2i(5,25);    Print("       Rho:  %g", rho);
-   glWindowPos2i(5,5);     Print("View Angle:  (%d,%d)",th,ph);
+   glWindowPos2i(5,5);     Print("View Angle:  (%0.1f,%0.1f)",th,ph);
 
    //  Flush and swap
    glFlush();
@@ -163,7 +172,7 @@ void display()
 }
 
 /*
- *  GLUT calls this routine when a key is pressed
+ *  GLUT calls this routine when a regular key is pressed
  */
 void key(unsigned char ch,int x,int y)
 {
@@ -175,7 +184,7 @@ void key(unsigned char ch,int x,int y)
 
       case 12:     
          //  Reset view angle on Ctrl-L
-         th = ph = 0;
+         th = ph = 0.0;
          break;
 
 // Manipulation of attractor parameters
@@ -229,35 +238,35 @@ void key(unsigned char ch,int x,int y)
 }
 
 /*
- *  GLUT calls this routine when an arrow key is pressed
+ *  GLUT calls this routine when a special key such as an arrow is pressed
  */
 void special(int key,int x,int y)
 {
    switch (key) {
       case GLUT_KEY_RIGHT:    
          //  Right arrow key - increase azimuth by 5 degrees
-         th += 5;
+         th += 5.0;
          break;
 
       case GLUT_KEY_LEFT:  
          //  Left arrow key - decrease azimuth by 5 degrees   
-         th -= 5;
+         th -= 5.0;
          break;
 
       case GLUT_KEY_UP:       
          //  Up arrow key - increase elevation by 5 degrees
-         ph += 5;
+         ph += 5.0;
          break;
 
       case GLUT_KEY_DOWN:     
          //  Down arrow key - decrease elevation by 5 degrees
-         ph -= 5;
+         ph -= 5.0;
          break;
    }
 
    //  Keep angles to +/-360 degrees
-   th %= 360;
-   ph %= 360;
+   th = fmod(th, 360.0);
+   ph = fmod(ph, 360.0);
    
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
@@ -269,7 +278,7 @@ void special(int key,int x,int y)
 void reshape(int width,int height)
 {
    //  Ratio of the width to the height of the window
-   double w2h = (height>0) ? (double)width/height : 1;
+   double w2h = (height>0.0) ? (double)width/height : 1.0;
 
    //  Set the viewport to the entire window
    glViewport(0, 0, width, height);
@@ -291,6 +300,33 @@ void reshape(int width,int height)
    glLoadIdentity();
 }
 
+/*
+ * Called by GLUT library when idle (window not being resized or moved)
+ *
+ * Animation code adapted from example code in the book "OpenGL SuperBible", 4ed:  Richard S Wright, Jr,
+ * Benjamin Lipchak, Nicholas Haemel.  Copyright (c) 2007 Pearson Education, Inc.  ISBN-13: 978-0-321-49882-3
+ */
+void TimerFunction(int value)    /* we only have a single timer, so the passed-in value is unused. */
+{
+   // Update axis rotation animation
+   th += th_dt;
+   ph += ph_dt;
+
+   //  Keep angles to +/-360 degrees
+   th = fmod(th, 360.0);
+   ph = fmod(ph, 360.0);
+
+   // Update attractor parameter animations
+   sigma += sigma_dt;
+   beta += beta_dt;
+   rho += rho_dt;
+
+   calc_lorenz(sigma, beta, rho);
+
+   // Redraw the scene and prime the next call to this function to happen in 33msec (1000/33 ~= 30 Hz framerate)
+   glutPostRedisplay();
+   glutTimerFunc(33, TimerFunction, 1);
+}
 
 /*
  *  Start up GLUT and tell it what to do
@@ -320,6 +356,9 @@ int main(int argc,char* argv[])
    
    //  Tell GLUT to call "key" when a key is pressed
    glutKeyboardFunc(key);
+
+   // Tell GLUT to call "TimerFunction" in 33 msec (30.3 Hz framerate)
+   glutTimerFunc(33, TimerFunction, 1);
    
    //  Allocate and calculate the initial Lorenz attractor
    arry = (tpp)malloc(sizeof(tripoint) * LORENZ_SIZE);
@@ -340,7 +379,7 @@ int main(int argc,char* argv[])
    }
    else
    {
-      fprintf(stderr, "ERROR! Unable to allocate memory to store the Lorenz attractor dataset.\n");
+      fprintf(stderr, "ERROR! Unable to allocate memory to store the Lorenz attractor instance dataset.\n");
       return -1;
    }
 }
