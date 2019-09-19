@@ -1,16 +1,9 @@
 /*
  *  Timothy Mason, homework 2, 3d Lorenz Attractor
  *
- *  Display 2, 3 and 4 dimensional coordinates in 3D.
- *
  *  Key bindings:
- *  1      2D coordinates
- *  2      2D coordinates with fixed Z value
- *  3      3D coordinates
- *  4      4D coordinates
- *  +/-    Increase/decrease z or w
  *  arrows Change view angle
- *  0      Reset view angle
+ *  Ctrl-L Reset view angle
  *  ESC    Exit
  */
 #include <stdio.h>
@@ -33,6 +26,10 @@
 //  Globals
 int th=0;                     // Azimuth of view angle
 int ph=0;                     // Elevation of view angle
+
+double sigma = SIGMA_DEFAULT;
+double beta = BETA_DEFAULT;
+double rho = RHO_DEFAULT;
 //
 // This value for dim was determined by programmatically checking the ranges of x, y, and z.  The maximum magnitude
 // (26.0004 on the y axis) was then rounded to 30 then doubled to get some aesthetically pleasing "breathing room"
@@ -59,8 +56,7 @@ void Print(const char* format , ...)
    
    //  Display the characters one at a time at the current raster position
    while (*ch)
-      // glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,*ch++);
-      glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *ch++);
+      glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *ch++);
 }
 
 /*
@@ -89,9 +85,9 @@ void calc_lorenz(double sigma, double beta, double rho)
    for (i=0, p=arry; i<LORENZ_SIZE; i++, p++)
    {
       if (i) {
-         double dx = (sigma*(y-x)) * dt;
-         double dy = (x*(rho-z)-y) * dt;
-         double dz = (x*y - beta*z) * dt;
+         double dx = (s*(y-x)) * dt;
+         double dy = (x*(r-z)-y) * dt;
+         double dz = (x*y - b*z) * dt;
 
          p->dist = sqrt(dx*dx + dy*dy + dz*dz);
          x += dx;
@@ -128,8 +124,6 @@ void display()
    glRotated(th,0,1,0);
 
    // Draw the Lorenz attractor
-   // Todo:  Change this to precompute the lorenz points only once per parameter set.
-   glColor3f(0,1,1);
    glBegin(GL_LINE_STRIP);
    tpp p = arry;
    for (int i=0; i<LORENZ_SIZE; i++, p++) {
@@ -158,7 +152,10 @@ void display()
    glRasterPos3d(0,0,dim*0.8);   Print("Z");
 
    //  Display parameters
-   glWindowPos2i(5,5);     Print("View Angle=%d,%d",th,ph);
+   glWindowPos2i(5,65);    Print("     Sigma:  %g", sigma);
+   glWindowPos2i(5,45);    Print("      Beta:  %g", beta);
+   glWindowPos2i(5,25);    Print("       Rho:  %g", rho);
+   glWindowPos2i(5,5);     Print("View Angle:  (%d,%d)",th,ph);
 
    //  Flush and swap
    glFlush();
@@ -171,6 +168,7 @@ void display()
 void key(unsigned char ch,int x,int y)
 {
    switch (ch) {
+// Housekeeping
       case 27:    
          //  Exit on ESC
          exit(0);
@@ -180,15 +178,50 @@ void key(unsigned char ch,int x,int y)
          th = ph = 0;
          break;
 
-      // case '+':   
-      //    //  Increase w by 0.1
-      //    w += 0.1;
-      //    break;
+// Manipulation of attractor parameters
+      case 'u':
+         // sigma++ single step
+         sigma += SIGMA_INCR;
+         calc_lorenz(sigma, beta, rho);
 
-      // case '-':   
-      //    //  Decrease w by 0.1
-      //    w -= 0.1;
-      //    break;
+         break;
+
+      case 'j':
+         // sigma-- single step
+         sigma -= SIGMA_INCR;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'i':
+         // beta++ single step
+         beta += BETA_INCR;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'k':
+         // beta-- single step
+         beta -= BETA_INCR;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'o':
+         // rho++ single step
+         rho += RHO_INCR;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'l':
+         // beta-- single step
+         rho -= RHO_INCR;
+         calc_lorenz(sigma, beta, rho);
+         break;
+
+      case 'r':
+         // Reset the attractor parameters to Lorenz's defaults
+         sigma = SIGMA_DEFAULT;
+         beta = BETA_DEFAULT;
+         rho = RHO_DEFAULT;
+         calc_lorenz(sigma, beta, rho);
    }
 
    //  Tell GLUT it is necessary to redisplay the scene
@@ -292,7 +325,8 @@ int main(int argc,char* argv[])
    arry = (tpp)malloc(sizeof(tripoint) * LORENZ_SIZE);
 
    if (arry) {
-      calc_lorenz(10, 2.6666, 28);
+      // Precalculate the array so we know the range of deltas for heatmap coloring
+      calc_lorenz(sigma, beta, rho);
 
       //  Pass control to GLUT so it can interact with the user
       glutMainLoop();
