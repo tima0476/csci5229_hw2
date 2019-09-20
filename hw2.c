@@ -157,10 +157,10 @@ void display()
    glRasterPos3d(0.0, 0.0, dim*0.8);   Print("Z");
 
    //  Display parameters
-   glWindowPos2i(5,65);    Print("     Sigma:  %0.4f %c %0.4f per sec", sigma, SIGN_CHAR(sigma_dt), fabs(sigma_dt*30.0));
-   glWindowPos2i(5,45);    Print("      Beta:  %0.4f %c %0.4f per sec", beta, SIGN_CHAR(beta_dt), fabs(beta_dt*30.0));
-   glWindowPos2i(5,25);    Print("       Rho:  %0.4f %c %0.4f per sec", rho, SIGN_CHAR(rho_dt), fabs(rho_dt*30.0));
-   glWindowPos2i(5,5);     Print("View Angle:  (%0.1f,%0.1f) + (%g,%g) per sec", th, ph, th_dt*30.0, ph_dt*30.0);
+   glWindowPos2i(5,65);    Print("     Sigma:  %0.4f %c %0.4f per sec", sigma, SIGN_CHAR(sigma_dt), fabs(sigma_dt*60.0));
+   glWindowPos2i(5,45);    Print("      Beta:  %0.4f %c %0.4f per sec", beta, SIGN_CHAR(beta_dt), fabs(beta_dt*60.0));
+   glWindowPos2i(5,25);    Print("       Rho:  %0.4f %c %0.4f per sec", rho, SIGN_CHAR(rho_dt), fabs(rho_dt*60.0));
+   glWindowPos2i(5,5);     Print("View Angle:  (%0.1f,%0.1f) + (%g,%g) per sec", th, ph, th_dt*60.0, ph_dt*60.0);
 
    //  Flush and swap
    glFlush();
@@ -345,9 +345,9 @@ void TimerFunction(int value)    /* we only have a single timer, so the passed-i
 
    calc_lorenz(sigma, beta, rho);
 
-   // Redraw the scene and prime the next call to this function to happen in 33msec (1000/33 ~= 30 Hz framerate)
+   // Redraw the scene and prime the next call to this function to happen in 16 msec (1000/16 ~= 60 Hz framerate)
    glutPostRedisplay();
-   glutTimerFunc(33, TimerFunction, 1);
+   glutTimerFunc(16, TimerFunction, 1);
 }
 
 /*
@@ -376,14 +376,14 @@ int main(int argc,char* argv[])
    //  Tell GLUT to call "key" when a key is pressed
    glutKeyboardFunc(key);
 
-   // Tell GLUT to call "TimerFunction" in 33 msec (30.3 Hz framerate)
-   glutTimerFunc(33, TimerFunction, 1);
+   // Tell GLUT to call "TimerFunction" again in 16 msec (62.5 Hz framerate)
+   glutTimerFunc(16, TimerFunction, 1);
    
    //  Allocate and calculate the initial Lorenz attractor
    arry = (tpp)malloc(sizeof(tripoint) * LORENZ_SIZE);
 
    if (arry) {
-      // Precalculate the array so we know the range of deltas for heatmap coloring
+      // Precalculate the array so we know the range of deltas for heatmap coloring of velocity
       calc_lorenz(sigma, beta, rho);
 
       //  Pass control to GLUT so it can interact with the user
