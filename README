@@ -1,2 +1,50 @@
-# csci5229_hw2
+Timothy Mason
+
 OpenGL Lorenz Attractor - HW2 for CSCI 5229 - University of Colorado Boulder
+
+Time Taken:  13.5 hours
+
+This program displays the first 50,000 points of a Lorenz attractor in 3D space, starting from coordinate 
+(1,1,1).  
+
+Coloring:  Line segments in the attractor representation are colored according to a "heatmap" which indicates
+velocity.  The shortest line segments (representing the slowest instantaneous velocity) are colored blue.
+Colors then increase by wavelength all the way to red which indicates the longest (fastest) segments.
+
+Animation:  The display of the attractor is animated at a target framerate of 62.5 FPS (period of 16 msec).  With
+vsync enabled on a 60Hz display, this should result in an actual framerate of 60 FPS.  On a system without vsync
+enabled, the actual animation speed will be approx 62.5 FPS, which will cause the animations to run slightly 
+faster than indicated.  On startup, axis rotation is animated with a default rotation rate of Azimuth +30 degrees 
+per second, and Elevation +15 degrees per second.
+
+The attractor parameters Sigma, Beta, and Rho can also be animated, but they are initially static (zero default 
+velocity).
+
+The Axis rotations and attractor parameters can also be manually incremented or decremented using keypresses,
+as shown below:
+
+Keyboard controls:
+
+ESC: Exit on ESC
+'0': Reset view angle and halt axes animations
+'d': increase azimuth by 5 degrees
+'a': decrease azimuth by 5 degrees   
+'w': increase elevation by 5 degrees
+'s': decrease elevation by 5 degrees
+'D': Increase azimuth rotational velocity by 1/2 degree per frame = 30 deg / sec
+'A': Decrease azimuth rotational velocity by 1/2 degree per frame = 30 deg / sec
+'W': Increase elevation rotational velocity by 1/2 degree per frame = 30 deg / sec 
+'S': Decrease elevation rotational velocity by 1/2 degree per frame = 30 deg / sec
+'u': increase sigma by 0.01
+'j': decrease sigma by 0.01
+'i': increase beta by 0.0033333
+'k': decrease beta by 0.0033333
+'o': increase rho by 0.05
+'l': decrease rho by 0.05
+'U': sigma increase velocity by 0.01 per second
+'J': sigma decrease velocity by 0.01 per second
+'I': beta increase velocity by 0.0033333 per second
+'K': beta decrease velocity by 0.0033333 per second
+'O': rho increase velocity by 0.05 per second
+'L': beta decrease velocity by 0.05 per second
+'-': Reset attractor parameters to defaults and halt parameter animations
