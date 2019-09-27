@@ -1,5 +1,6 @@
 /*
  *  Timothy Mason, homework 2, 3d Lorenz Attractor
+ * CSCI 5229 Computer Graphics - University of Colorado Boulder
  */
 
 #include <stdio.h>
@@ -28,7 +29,7 @@ double beta = BETA_DEFAULT;
 double rho = RHO_DEFAULT;
 //
 // This value for dim was determined by programmatically checking the ranges of x, y, and z for the default 
-// attractor parameters.  The maximum magnitude (26.0004 on the y axis) was  rounded to 30 then doubled to 
+// attractor parameters.  The maximum magnitude (26.0004 on the y axis) was rounded to 30 then doubled to 
 // get some aesthetically pleasing "breathing room" and avoid clipping to the ortho projection.
 //
 double dim=60.0;                // Dimension of orthogonal box
@@ -38,6 +39,7 @@ double max_dist = 0.0;          // Track the magnitude of the largest vector for
 double th_dt = AXIS_ANIM_STEP * 2.0; // Default for the axis to be in motion
 double ph_dt = AXIS_ANIM_STEP;
 
+// Defaults for attractor parameter animation
 double sigma_dt = 0.0;
 double beta_dt = 0.0;
 double rho_dt = 0.0;

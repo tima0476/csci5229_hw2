@@ -24,10 +24,11 @@ void Print(const char* format , ...);
 #define RHO_INCR 0.05		// Amount to change rho on a single step
 
 // Animation step sizes
-#define AXIS_ANIM_STEP	0.5	// 1/2 degree per frame @ 30 FPS = 15 deg / sec
-#define SIGMA_ANIM_STEP (SIGMA_INCR / 30.0)
-#define BETA_ANIM_STEP (BETA_INCR / 30.0)
-#define RHO_ANIM_STEP (RHO_INCR / 30.0)
+#define AXIS_ANIM_STEP	0.5	// 1/2 degree per frame @ 60 FPS = 30 deg / sec
+#define SIGMA_ANIM_STEP (SIGMA_INCR / 60.0)
+#define BETA_ANIM_STEP (BETA_INCR / 60.0)
+#define RHO_ANIM_STEP (RHO_INCR / 60.0)
+
 
 // Data structure containing a single point in an attractor instance dataset
 typedef struct tripoint {

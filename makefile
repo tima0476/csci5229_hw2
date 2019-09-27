@@ -25,15 +25,12 @@ CLEAN=rm -f $(EXE) *.o *.a
 endif
 
 # Compile rules
-.c.o:
+.c.o:hw2.h hsv2rgb.h
 	gcc -c $(CFLG) $<
-.cpp.o:
-	g++ -c $(CFLG) $<
 
 #  Link
 hw2:hw2.o hsv2rgb.o
 	gcc -O3 -o $@ $^   $(LIBS)
-	./hw2
 
 #  Clean
 clean:
